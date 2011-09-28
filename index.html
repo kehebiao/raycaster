@@ -1,0 +1,130 @@
+<html>
+  <head>
+  </head>
+
+  <body>
+    <canvas id="canvas" width="640" height="640">
+    </canvas>
+
+    <script type="text/javascript">
+      var wall,
+          side,
+          dist
+
+      var colors = ["red", "green", "blue", "purple"]
+
+      function raycast (x, y, sx, sy) {
+        var a = x,
+            b = y,
+            zx, zy,
+            ox, oy
+
+        sx = 1 / sx
+        sy = 1 / sy
+
+        x = Math.floor (x)
+        y = Math.floor (y)
+
+        if (sx > 0) { zx = (x + 1 - a) * sx; a = 1; ox = 0 }
+        else { sx = -sx; zx = (a - x) * sx; a = -1; ox = 2 }
+
+        if (sy > 0) { zy = (y + 1 - b) * sy; b = 15; oy = 3 }
+        else { sy = -sy; zy = (b - y) * sy; b = -15; oy = 1 }
+        y *= 15
+
+        for (;;)
+          if (zx < zy) {
+            x += a
+
+            if (map[x + y]) {
+              wall = x + y
+              side = ox
+              dist = zx
+              return
+            }
+
+            zx += sx
+          }
+
+          else {
+            y += b
+
+            if (map[x + y]) {
+              wall = x + y
+              side = oy
+              dist = zy
+              return
+            }
+
+            zy += sy
+          }
+      }
+
+      /* FIXME: Do adaptive subdivision. */
+      function scan (left, leftWall, leftSide, leftDist, right, rightWall, rightSide, rightDist) {
+        while (leftWall !== rightWall || leftSide !== rightSide) {
+          /* FIXME: recurse left, tail recurse right */
+        }
+
+        /* FIXME: Draw walls */
+      }
+      
+      function draw () {
+        var cos = Math.cos (player.a),
+            sin = Math.sin (player.a),
+            x = width,
+            dx, dy, h
+
+        ctx.save ()
+        ctx.translate (0, height * 0.5)
+
+        while (x--) {
+          dx = (x + 0.5) / width - 0.5
+          dy = 1 / Math.sqrt (dx * dx + 1)
+          dx *= dy
+          raycast (player.x, player.y, dx * cos - dy * sin, dy * cos + dx * sin)
+          dist *= dy
+
+          h = width / dist
+          ctx.fillStyle = colors[side]
+          ctx.fillRect (x, h * -0.5, 1, h)
+        }
+
+        ctx.restore ()
+      }
+
+      var canvas = document.getElementById ("canvas"),
+          width = canvas.width,
+          height = canvas.height,
+          ctx = canvas.getContext ("2d"),
+          map = [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          player = {x: 7.5, y: 7.5, a: 0},
+          fov = Math.PI / 3,
+          start = Date.now ()
+
+      setInterval (function () {
+        var millis = Date.now () - start
+
+        player.a = millis * Math.PI / 8000
+        ctx.clearRect (0, 0, ctx.canvas.width, ctx.canvas.height)
+        draw ()
+      }, 0)
+    </script>
+  </body>
+</html>
