@@ -14,18 +14,25 @@
       var colors = ["red", "green", "blue", "purple"]
 
       function raycast (x, y, cos, sin, dx) {
-        var dy = 1 / Math.sqrt (dx * dx + 1)
-        dx *= dy
-
-        var sx = 1 / (dx * cos - dy * sin),
-            sy = 1 / (dy * cos + dx * sin),
-            a = x,
+        var a = x,
             b = y,
-            zx, zy,
-            ox, oy
+            dy, sx, sy, zx, zy, ox, oy
 
         x = Math.floor (x)
         y = Math.floor (y)
+
+        if (dx) {
+          dy = 1 / Math.sqrt (dx * dx + 1)
+          dx *= dy
+          sx = 1 / (dx * cos - dy * sin)
+          sy = 1 / (dy * cos + dx * sin)
+        }
+
+        else {
+          dy = 1
+          sx = 1 / cos
+          sy = 1 / sin
+        }
 
         if (sx > 0) { zx = (x + 1 - a) * sx; a = 1; ox = 0 }
         else { sx = -sx; zx = (a - x) * sx; a = -1; ox = 2 }
