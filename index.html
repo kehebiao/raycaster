@@ -13,14 +13,16 @@
 
       var colors = ["red", "green", "blue", "purple"]
 
-      function raycast (x, y, sx, sy) {
-        var a = x,
+      function raycast (x, y, cos, sin, dx) {
+        var dy = 1 / Math.sqrt (dx * dx + 1)
+        dx *= dy
+
+        var sx = 1 / (dx * cos - dy * sin),
+            sy = 1 / (dy * cos + dx * sin),
+            a = x,
             b = y,
             zx, zy,
             ox, oy
-
-        sx = 1 / sx
-        sy = 1 / sy
 
         x = Math.floor (x)
         y = Math.floor (y)
@@ -39,7 +41,7 @@
             if (map[x + y]) {
               wall = x + y
               side = ox
-              dist = zx
+              dist = zx * dy
               return
             }
 
@@ -52,7 +54,7 @@
             if (map[x + y]) {
               wall = x + y
               side = oy
-              dist = zy
+              dist = zy * dy
               return
             }
 
@@ -73,17 +75,13 @@
         var cos = Math.cos (player.a),
             sin = Math.sin (player.a),
             x = width,
-            dx, dy, h
+            h
 
         ctx.save ()
         ctx.translate (0, height * 0.5)
 
         while (x--) {
-          dx = (x + 0.5) / width - 0.5
-          dy = 1 / Math.sqrt (dx * dx + 1)
-          dx *= dy
-          raycast (player.x, player.y, dx * cos - dy * sin, dy * cos + dx * sin)
-          dist *= dy
+          raycast (player.x, player.y, cos, sin, (x + 0.5) / width - 0.5)
 
           h = width / dist
           ctx.fillStyle = colors[side]
