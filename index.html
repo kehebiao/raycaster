@@ -1,10 +1,20 @@
 <html>
   <head>
+    <style type="text/css">
+      * {
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+
+      body {
+        overflow: hidden;
+      }
+    </style>
   </head>
 
   <body>
-    <canvas id="canvas" width="640" height="640">
-    </canvas>
+    <canvas id="canvas" width="0" height="0"></canvas>
 
     <script type="text/javascript">
       var wall,
@@ -13,9 +23,9 @@
 
       var colors = ["red", "green", "blue", "purple"]
 
-      function raycast (x, y, a, b, dx) {
-        var sx = 1 / (dx * a - b),
-            sy = 1 / (a + dx * b),
+      function raycast (x, y, a, b, c) {
+        var sx = 1 / (c * a - b),
+            sy = 1 / (a + c * b),
             zx, zy, ox, oy
 
         a = x
@@ -33,9 +43,10 @@
         for (;;)
           if (zx < zy) {
             x += a
+            c = x + y
 
-            if (map[x + y]) {
-              wall = x + y
+            if (map[c]) {
+              wall = c
               side = ox
               dist = zx
               return
@@ -46,9 +57,10 @@
 
           else {
             y += b
+            c = x + y
 
-            if (map[x + y]) {
-              wall = x + y
+            if (map[c]) {
+              wall = c
               side = oy
               dist = zy
               return
@@ -65,8 +77,8 @@
             h = ctx.canvas.height,
             i = w
 
-        ctx.clearRect (0, 0, i, h)
         ctx.save ()
+        ctx.clearRect (0, 0, w, h)
         ctx.translate (0, h * 0.5)
 
         while (i--) {
@@ -101,9 +113,16 @@
           ],
           start = Date.now ()
 
+      function resize () {
+        canvas.width = document.body.clientWidth
+        canvas.height = document.body.clientHeight
+      }
+
+      resize ()
+      window.onresize = resize
+
       setInterval (function () {
         var millis = Date.now () - start
-
         draw (ctx, 7.5, 7.5, millis * Math.PI / 8000)
       }, 0)
     </script>
