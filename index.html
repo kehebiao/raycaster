@@ -70,6 +70,38 @@
           }
       }
       
+      function recurse (ctx, x, y, cos, sin, l, lWall, lSide, lDist, r, rWall, rSide, rDist) {
+        var m, mWall, mSide, mDist
+
+        while (r - l !== 1 && (lWall !== rWall || lSide !== rSide)) {
+          m = (l + r) >> 1
+
+          raycast (x, y, cos, sin, (m + 0.5) / ctx.canvas.width - 0.5)
+          mWall = wall
+          mSide = side
+          mDist = dist
+
+          recurse (ctx, x, y, cos, sin, l, lWall, lSide, lDist, m, mWall, mSide, mDist)
+
+          l = m
+          lWall = mWall
+          lSide = mSide
+          lDist = mDist
+        }
+
+        lDist = ctx.canvas.width * 0.5 / lDist
+        rDist = ctx.canvas.width * 0.5 / rDist
+
+        ctx.strokeStyle = colors[lSide]
+        ctx.beginPath ()
+        ctx.moveTo (l,  lDist)
+        ctx.lineTo (l, -lDist)
+        ctx.lineTo (r, -rDist)
+        ctx.lineTo (r,  rDist)
+        ctx.closePath ()
+        ctx.stroke ()
+      }
+
       function draw (ctx, x, y, a) {
         var cos = Math.cos (a),
             sin = Math.sin (a),
@@ -81,6 +113,16 @@
         ctx.clearRect (0, 0, w, h)
         ctx.translate (0, h * 0.5)
 
+        raycast (x, y, cos, sin, -0.5)
+
+        var lWall = wall,
+            lSide = side,
+            lDist = dist
+
+        raycast (x, y, cos, sin, 0.5)
+
+        recurse (ctx, x, y, cos, sin, 0, lWall, lSide, lDist, w, wall, side, dist)
+        /*
         while (i--) {
           raycast (x, y, cos, sin, (i + 0.5) / w - 0.5)
 
@@ -88,6 +130,7 @@
           ctx.fillStyle = colors[side]
           ctx.fillRect (i, h * -0.5, 1, h)
         }
+        */
 
         ctx.restore ()
       }
