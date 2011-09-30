@@ -10,11 +10,18 @@
       body {
         overflow: hidden;
       }
+
+      #debug {
+        position: absolute;
+        left: 1em;
+        top: 1em;
+      }
     </style>
   </head>
 
   <body>
     <canvas id="canvas" width="0" height="0"></canvas>
+    <p id="debug"></p>
 
     <script type="text/javascript">
       var wall,
@@ -130,6 +137,7 @@
       }
 
       var canvas = document.getElementById ("canvas"),
+          debug = document.getElementById ("debug"),
           ctx = canvas.getContext ("2d"),
           map = [
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -147,8 +155,7 @@
             1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-          ],
-          start = Date.now ()
+          ]
 
       function resize () {
         canvas.width = document.body.clientWidth
@@ -158,9 +165,16 @@
       resize ()
       window.onresize = resize
 
+      var start = Date.now (),
+          frame = 0
+
       setInterval (function () {
         var millis = Date.now () - start
+        frame++
+
         draw (ctx, 7.5, 7.5, millis * Math.PI / 32000)
+
+        debug.innerHTML = Math.floor (frame * 1000 / millis) + " FPS"
       }, 0)
     </script>
   </body>
