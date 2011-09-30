@@ -5,10 +5,21 @@
         margin: 0;
         padding: 0;
         border: 0;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -o-user-select: none;
+        user-select: none;
       }
 
       body {
         overflow: hidden;
+      }
+
+      canvas {
+        display: block;
+        margin: 6em auto;
+        cursor: pointer;
       }
 
       #debug {
@@ -20,11 +31,39 @@
   </head>
 
   <body>
-    <canvas id="canvas" width="0" height="0"></canvas>
+    <canvas id="canvas" width="512" height="512"></canvas>
     <p id="debug"></p>
 
     <script type="text/javascript">
-      var wall,
+      var canvas = document.getElementById ("canvas"),
+          debug = document.getElementById ("debug"),
+          width = canvas.width,
+          height = canvas.height,
+          ctx = canvas.getContext ("2d"),
+          map = [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          playerX = 7.5,
+          playerY = 7.5,
+          playerFacing = 0,
+          cameraX = 7.5,
+          cameraY = 7.5,
+          cameraAngle = 0,
+          wall,
           side,
           dist
 
@@ -128,45 +167,43 @@
         ctx.restore ()
       }
 
-      var canvas = document.getElementById ("canvas"),
-          debug = document.getElementById ("debug"),
-          width = canvas.width,
-          height = canvas.height,
-          ctx = canvas.getContext ("2d"),
-          map = [
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-          ]
+      canvas.onclick = function (e) {
+        var x = e.pageX,
+            t = e.target
 
-      function resize () {
-        canvas.width = width = document.body.clientWidth
-        canvas.height = height = document.body.clientHeight
+        do x -= t.offsetLeft
+        while (t = t.offsetParent)
+
+        if (x < width * 0.16666666666666666)
+          playerFacing++
+
+        else if (x < width * 0.8333333333333334)
+          switch (playerFacing & 3) {
+            case 0: playerY++; break
+            case 1: playerX--; break
+            case 2: playerY--; break
+            case 3: playerX++; break
+          }
+
+        else
+          playerFacing--
       }
-
-      resize ()
-      window.onresize = resize
 
       var start = Date.now (),
           frame = 0
 
       setInterval (function () {
-        var millis = Date.now () - start
+        var millis = Date.now () - start,
+            target = playerFacing * Math.PI * 0.5
+
         frame++
 
-        draw (7.5, 7.5, millis * Math.PI / 16000)
+        /* FIXME: Easing should be independent of framerate. */
+        cameraX = cameraX + (playerX - cameraX) * 0.0625
+        cameraY = cameraY + (playerY - cameraY) * 0.0625
+        cameraAngle = cameraAngle + (target - cameraAngle) * 0.0625
+
+        draw (cameraX, cameraY, cameraAngle)
 
         if (frame % 60 === 1)
           debug.innerHTML = Math.floor (frame * 1000 / millis) + " FPS"
