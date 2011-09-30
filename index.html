@@ -77,21 +77,21 @@
           }
       }
       
-      function recurse (ctx, x, y, cos, sin, l, lWall, lSide, lDist, r, rWall, rSide, rDist) {
+      function recurse (x, y, cos, sin, l, lWall, lSide, lDist, r, rWall, rSide, rDist) {
         var m, mWall, mSide, mDist
 
         /* FIXME: By being a bit more clever here, we can render fewer slices
          * with the same number of polygons. Depending on the rendering
          * technique, this may or may not be useful. */
-        while (r - l !== 1 && (lWall !== rWall || lSide !== rSide)) {
+        while ((lWall !== rWall || lSide !== rSide) && r - l !== 1) {
           m = (l + r) >> 1
 
-          raycast (x, y, cos, sin, (m + 0.5) / ctx.canvas.width - 0.5)
+          raycast (x, y, cos, sin, (m + 0.5) / width - 0.5)
           mWall = wall
           mSide = side
           mDist = dist
 
-          recurse (ctx, x, y, cos, sin, l, lWall, lSide, lDist, m, mWall, mSide, mDist)
+          recurse (x, y, cos, sin, l, lWall, lSide, lDist, m, mWall, mSide, mDist)
 
           l = m
           lWall = mWall
@@ -99,29 +99,25 @@
           lDist = mDist
         }
 
-        lDist = ctx.canvas.width * 0.5 / lDist
-        rDist = ctx.canvas.width * 0.5 / rDist
+        lDist = width * 0.5 / lDist
+        rDist = width * 0.5 / rDist
 
-        ctx.strokeStyle = colors[lSide]
+        ctx.fillStyle = colors[lSide]
         ctx.beginPath ()
         ctx.moveTo (l,  lDist)
         ctx.lineTo (l, -lDist)
         ctx.lineTo (r, -rDist)
         ctx.lineTo (r,  rDist)
-        ctx.closePath ()
-        ctx.stroke ()
+        ctx.fill ()
       }
 
-      function draw (ctx, x, y, a) {
+      function draw (x, y, a) {
         var cos = Math.cos (a),
-            sin = Math.sin (a),
-            w = ctx.canvas.width,
-            h = ctx.canvas.height,
-            i = w
+            sin = Math.sin (a)
 
         ctx.save ()
-        ctx.clearRect (0, 0, w, h)
-        ctx.translate (0, h * 0.5)
+        ctx.clearRect (0, 0, width, height)
+        ctx.translate (0, height * 0.5)
 
         raycast (x, y, cos, sin, -0.5)
 
@@ -131,13 +127,15 @@
 
         raycast (x, y, cos, sin, 0.5)
 
-        recurse (ctx, x, y, cos, sin, 0, lWall, lSide, lDist, w, wall, side, dist)
+        recurse (x, y, cos, sin, 0, lWall, lSide, lDist, width, wall, side, dist)
 
         ctx.restore ()
       }
 
       var canvas = document.getElementById ("canvas"),
           debug = document.getElementById ("debug"),
+          width = canvas.width,
+          height = canvas.height,
           ctx = canvas.getContext ("2d"),
           map = [
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -158,8 +156,8 @@
           ]
 
       function resize () {
-        canvas.width = document.body.clientWidth
-        canvas.height = document.body.clientHeight
+        canvas.width = width = document.body.clientWidth
+        canvas.height = height = document.body.clientHeight
       }
 
       resize ()
@@ -172,7 +170,7 @@
         var millis = Date.now () - start
         frame++
 
-        draw (ctx, 7.5, 7.5, millis * Math.PI / 32000)
+        draw (7.5, 7.5, millis * Math.PI / 16000)
 
         debug.innerHTML = Math.floor (frame * 1000 / millis) + " FPS"
       }, 0)
