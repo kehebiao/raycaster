@@ -142,17 +142,20 @@
             lDist = mDist
           }
 
-          /* FIXME: Change this to iterating over scanlines. */
+          /* FIXME: Add texturing. */
+          /* FIXME: This can be optimized to using fewer spans when the
+           * vertical difference is less than the horizontal one. */
           lDist = b / lDist
           rDist = b / rDist
 
           ctx.fillStyle = colors[lSide]
-          ctx.beginPath ()
-          ctx.moveTo (l,  lDist)
-          ctx.lineTo (l, -lDist)
-          ctx.lineTo (r, -rDist)
-          ctx.lineTo (r,  rDist)
-          ctx.fill ()
+
+          var i, h
+
+          for (i = l; i !== r; ++i) {
+            h = Math.floor (lDist + (rDist - lDist) * (i - l) / (r - l))
+            ctx.fillRect (i, -h, 1, h + h)
+          }
         }
 
         ctx.save ()
