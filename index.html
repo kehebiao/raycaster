@@ -73,6 +73,9 @@
       function recurse (ctx, x, y, cos, sin, l, lWall, lSide, lDist, r, rWall, rSide, rDist) {
         var m, mWall, mSide, mDist
 
+        /* FIXME: By being a bit more clever here, we can render fewer slices
+         * with the same number of polygons. Depending on the rendering
+         * technique, this may or may not be useful. */
         while (r - l !== 1 && (lWall !== rWall || lSide !== rSide)) {
           m = (l + r) >> 1
 
@@ -122,15 +125,6 @@
         raycast (x, y, cos, sin, 0.5)
 
         recurse (ctx, x, y, cos, sin, 0, lWall, lSide, lDist, w, wall, side, dist)
-        /*
-        while (i--) {
-          raycast (x, y, cos, sin, (i + 0.5) / w - 0.5)
-
-          h = w / dist
-          ctx.fillStyle = colors[side]
-          ctx.fillRect (i, h * -0.5, 1, h)
-        }
-        */
 
         ctx.restore ()
       }
@@ -166,7 +160,7 @@
 
       setInterval (function () {
         var millis = Date.now () - start
-        draw (ctx, 7.5, 7.5, millis * Math.PI / 8000)
+        draw (ctx, 7.5, 7.5, millis * Math.PI / 32000)
       }, 0)
     </script>
   </body>
