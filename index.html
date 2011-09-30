@@ -80,13 +80,10 @@
       function recurse (x, y, cos, sin, l, lWall, lSide, lDist, r, rWall, rSide, rDist) {
         var m, mWall, mSide, mDist
 
-        /* FIXME: By being a bit more clever here, we can render fewer slices
-         * with the same number of polygons. Depending on the rendering
-         * technique, this may or may not be useful. */
         while ((lWall !== rWall || lSide !== rSide) && r - l !== 1) {
           m = (l + r) >> 1
 
-          raycast (x, y, cos, sin, (m + 0.5) / width - 0.5)
+          raycast (x, y, cos, sin, m / width - 0.5)
           mWall = wall
           mSide = side
           mDist = dist
@@ -99,6 +96,7 @@
           lDist = mDist
         }
 
+        /* FIXME: Change this to iterating over scanlines. */
         lDist = width * 0.5 / lDist
         rDist = width * 0.5 / rDist
 
@@ -172,7 +170,8 @@
 
         draw (7.5, 7.5, millis * Math.PI / 16000)
 
-        debug.innerHTML = Math.floor (frame * 1000 / millis) + " FPS"
+        if (frame % 60 === 1)
+          debug.innerHTML = Math.floor (frame * 1000 / millis) + " FPS"
       }, 0)
     </script>
   </body>
