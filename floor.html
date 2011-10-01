@@ -30,11 +30,14 @@
           j = (height - 1) * width *4 + i
           
           for (y = 0; y !== height * 0.5; ++y) {
-            c = 256 / (1 - y * 2 / height)
             a = x / width - 0.5
             b = 1 / Math.sqrt (a * a + 1)
             a *= b
 
+            /* FIXME: The problem here is that c is constant across the screen,
+             * while it should vary with x. If we get that right, then the
+             * fisheye effect will go away. */
+            c = 256 / (1 - y * 2 / height)
             a *= c
             b *= c
 
