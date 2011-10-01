@@ -21,37 +21,30 @@
         var width = id.width,
             height = id.height,
             data = id.data,
-            x, y, i, j
+            x, y, i, j, a, u, v
 
-        var a, b, c
+        var a, b
 
         for (x = 0; x !== width; ++x) {
           i = x << 2
-          j = (height - 1) * width *4 + i
+          j = ((height - 1) * width + x) << 2
+          a = x / width - 0.5
           
           for (y = 0; y !== height * 0.5; ++y) {
-            a = x / width - 0.5
-            b = 1 / Math.sqrt (a * a + 1)
-            a *= b
+            v = 256 / (1 - y * 2 / height)
+            u = a * v
 
-            /* FIXME: The problem here is that c is constant across the screen,
-             * while it should vary with x. If we get that right, then the
-             * fisheye effect will go away. */
-            c = 256 / (1 - y * 2 / height)
-            a *= c
-            b *= c
-
-            a &= 255
-            b &= 255
+            u &= 255
+            v &= 255
 
             data[i    ] =
             data[i + 1] =
-            data[i + 2] = a ^ b
+            data[i + 2] = u ^ v
             data[i + 3] = 255
 
             data[j    ] =
             data[j + 1] =
-            data[j + 2] = a ^ b
+            data[j + 2] = u ^ v
             data[j + 3] = 255
 
             i += width << 2
