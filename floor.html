@@ -17,13 +17,13 @@
        * against the floor and checking for a wall at each pixel. There are
        * lots of possible optimizations, like only checking for a new wall
        * after we cross a threshold, etc. */
-      function draw (id) {
+      function draw (id, cx, cy, ca) {
         var width = id.width,
             height = id.height,
             data = id.data,
-            x, y, i, j, a, u, v
-
-        var a, b
+            cos = Math.cos (ca),
+            sin = Math.sin (ca),
+            x, y, i, j, a, b, u, v
 
         for (x = 0; x !== width; ++x) {
           i = x << 2
@@ -31,8 +31,10 @@
           a = x / width - 0.5
           
           for (y = 0; y !== height * 0.5; ++y) {
-            v = 256 / (1 - y * 2 / height)
-            u = a * v
+            b = 128 / (1 - y * 2 / height)
+
+            u = cx + (a * cos - sin) * b
+            v = cy + (cos + a * sin) * b
 
             u &= 255
             v &= 255
@@ -53,8 +55,14 @@
         }
       }
 
-      draw (id)
-      ctx.putImageData (id, 0, 0)
+      var start = Date.now ()
+
+      setInterval (function () {
+        var millis = Date.now () - start
+
+        draw (id, millis * 256 / 8000, 0, millis * Math.PI / 8000)
+        ctx.putImageData (id, 0, 0)
+      }, 0)
     </script>
   </body>
 </html>
