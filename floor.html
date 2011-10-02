@@ -30,11 +30,11 @@
             invHeight = 1 / height,
             x, tx, y, ty, i, t, u, v
 
-        i = data.length >> 1
+        i = data.length
         y = height >> 1
-        ty = 0
+        ty = 0.5
         while (y--) {
-          ty += invHeight
+          ty -= invHeight
           t = 64 / ty
           x = width
           tx = 0.5
