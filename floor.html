@@ -31,6 +31,12 @@
             x, tx, y, ty, i, t, u, v
 
         i = data.length
+        while (i--) {
+          data[i] = 0
+          i -= 3
+        }
+
+        i = data.length
         y = height >> 1
         ty = 0.5
         while (y--) {
@@ -43,11 +49,23 @@
             u = cx + (tx * cos - sin) * t
             v = cy + (cos + tx * sin) * t
 
-            data[--i] = 255
-            data[--i] =
-            data[--i] =
-            data[--i] = (u ^ v) & 255
+            if (u < 0 || u >= 4096 || v < 0 || v >= 4096) {
+              /* FIXME: Loop vertically, drawing a wall. */
+              data[--i] = 255
+              data[--i] =
+              data[--i] =
+              data[--i] = 0
+            }
+
+            else if (!data[--i]) {
+              data[i] = 255
+              data[--i] =
+              data[--i] =
+              data[--i] = (u ^ v) & 255
+            }
           }
+
+          /* FIXME: If an entire row is filled already, break the loop. */
         }
       }
 
@@ -58,7 +76,7 @@
         frame++
         var millis = Date.now () - start
 
-        draw (id, millis * 256 / 8000, 0, millis * Math.PI / 8000)
+        draw (id, 2048, 2048, millis * Math.PI / 8000)
         ctx.putImageData (id, 0, 0)
       }, 0)
 
