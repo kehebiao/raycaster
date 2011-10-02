@@ -8,8 +8,11 @@
     <canvas id="canvas" width="512" height="512">
     </canvas>
 
+    <p id="debug"></p>
+
     <script type="text/javascript">
       var canvas = document.getElementById ("canvas"),
+          debug = document.getElementById ("debug"),
           ctx = canvas.getContext ("2d"),
           id = ctx.getImageData (0, 0, canvas.width, canvas.height)
 
@@ -25,52 +28,43 @@
             sin = Math.sin (ca),
             invWidth = 1 / width,
             invHeight = 1 / height,
-            x, tx, y, ty, i, j, a, b, u, v
+            x, tx, y, ty, i, t, u, v
 
-        x = width
-        tx = 0.5
-        while (x--) {
-          tx -= invWidth
-          a = tx * cos - sin
-          b = cos + tx * sin
+        i = data.length >> 1
+        y = height >> 1
+        ty = 0
+        while (y--) {
+          ty += invHeight
+          t = 64 / ty
+          x = width
+          tx = 0.5
+          while (x--) {
+            tx -= invWidth
+            u = cx + (tx * cos - sin) * t
+            v = cy + (cos + tx * sin) * t
 
-          y = height >> 1
-          ty = 0
-          i = (y * width + x) << 2
-          j = i + (width << 2)
-          while (y--) {
-            ty += invHeight
-
-            v = 64 / ty
-            u = cx + a * v
-            v = cy + b * v
-            u &= 255
-            v &= 255
-
-            data[i    ] =
-            data[i + 1] =
-            data[i + 2] = u ^ v
-            data[i + 3] = 255
-
-            data[j    ] =
-            data[j + 1] =
-            data[j + 2] = u ^ v
-            data[j + 3] = 255
-
-            i -= width << 2
-            j += width << 2
+            data[--i] = 255
+            data[--i] =
+            data[--i] =
+            data[--i] = (u ^ v) & 255
           }
         }
       }
 
-      var start = Date.now ()
+      var start = Date.now (),
+          frame = 0
 
       setInterval (function () {
+        frame++
         var millis = Date.now () - start
 
         draw (id, millis * 256 / 8000, 0, millis * Math.PI / 8000)
         ctx.putImageData (id, 0, 0)
       }, 0)
+
+      setInterval (function () {
+        debug.innerHTML = Math.round (frame * 1000 / (Date.now () - start)) + " FPS"
+      }, 1000)
     </script>
   </body>
 </html>
