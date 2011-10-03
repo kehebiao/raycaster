@@ -5,7 +5,7 @@
   </head>
 
   <body>
-    <canvas id="canvas" width="512" height="512">
+    <canvas id="canvas" width="640" height="480">
     </canvas>
 
     <p id="debug"></p>
@@ -29,14 +29,7 @@
             invWidth = 1 / width,
             invHeight = 1 / height,
             skip = (width - 1) << 2,
-            x, tx, a, b, i, y, ty, t, u, v
-
-        /* FIXME: Replace clear with a ceiling texture. */
-        i = data.length >> 1
-        while (i--) {
-          data[i] = 0
-          i -= 3
-        }
+            x, tx, a, b, i, j, y, ty, t, u, v
 
         x = width
         tx = 0.5
@@ -44,7 +37,8 @@
           tx -= invWidth
           a = tx * cos - sin
           b = cos + tx * sin
-          i = data.length + ((x + 1 - width) << 2)
+          i = x << 2
+          j = data.length + ((x + 1 - width) << 2)
           y = height >> 1
           ty = 0.5
           while (y--) {
@@ -53,25 +47,33 @@
             u = cx + a * t
             v = cy + b * t
 
-            if (u < 0 || u >= 4096 || v < 0 || v >= 4096) {
-              y <<= 1
+            if (u < 0 || u >= 2048 || v < 0 || v >= 2048) {
+              y = (y + 1) << 1
 
               while (y--) {
-                data[--i] = 255
-                data[--i] = 0
-                data[--i] = 0
-                data[--i] = 255
-                i -= skip
+                data[i++] = 255
+                data[i++] = 0
+                data[i++] = 0
+                data[i++] = 255
+                i += skip
               }
 
               break
             }
 
-            data[--i] = 255
-            data[--i] =
-            data[--i] =
-            data[--i] = (u ^ v) & 255
-            i -= skip
+            t = (u ^ v) & 255
+
+            data[i++] =
+            data[i++] =
+            data[i++] = t
+            data[i++] = 255
+            i += skip
+
+            data[--j] = 255
+            data[--j] =
+            data[--j] =
+            data[--j] = t
+            j -= skip
           }
         }
       }
@@ -83,7 +85,7 @@
         frame++
         var millis = Date.now () - start
 
-        draw (id, 2048, 2048, millis * Math.PI / 8000)
+        draw (id, 1024, 1024, millis * Math.PI / 8000)
         ctx.putImageData (id, 0, 0)
       }, 0)
 
