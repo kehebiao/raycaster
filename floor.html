@@ -28,7 +28,8 @@
             sin = Math.sin (ca),
             invWidth = 1 / width,
             invHeight = 1 / height,
-            x, tx, y, ty, i, t, u, v
+            skip = (width - 1) << 2,
+            x, tx, y, ty, i, t, u, v, j, k
 
         i = data.length
         while (i--) {
@@ -50,11 +51,17 @@
             v = cy + (cos + tx * sin) * t
 
             if (u < 0 || u >= 4096 || v < 0 || v >= 4096) {
-              /* FIXME: Loop vertically, drawing a wall. */
-              data[--i] = 255
-              data[--i] =
-              data[--i] =
-              data[--i] = 0
+              j = i
+              i -= 4
+              k = y << 1
+
+              while (k--) {
+                data[--j] = 255
+                data[--j] = 0
+                data[--j] = 0
+                data[--j] = 255
+                j -= skip
+              }
             }
 
             else if (!data[--i]) {
