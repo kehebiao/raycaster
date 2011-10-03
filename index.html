@@ -15,14 +15,12 @@
           debug = document.getElementById ("debug"),
           ctx = canvas.getContext ("2d"),
           id = ctx.getImageData (0, 0, canvas.width, canvas.height),
-          h = canvas.height >> 1,
-          i = h,
+          i = canvas.height >> 1,
           distance = new Array (i)
 
       while (i--)
-        distance[i] = 256 * h / i
+        distance[i] = 128 * canvas.width / i
 
-      delete h
       delete i
 
       function draw (id, cx, cy, ca) {
@@ -88,12 +86,15 @@
           /* Draw walls. */
           y++
           y <<= 1
+          a = 0
+          b = 255 / y
           while (y--) {
-            data[i++] = 255
-            data[i++] = t
-            data[i++] = 0
+            data[i++] =
+            data[i++] =
+            data[i++] = t ^ a
             data[i++] = 255
             i += skip
+            a += b
           }
         }
       }
