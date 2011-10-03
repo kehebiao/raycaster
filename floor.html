@@ -29,50 +29,50 @@
             invWidth = 1 / width,
             invHeight = 1 / height,
             skip = (width - 1) << 2,
-            x, tx, y, ty, i, t, u, v, j, k
+            x, tx, a, b, i, y, ty, t, u, v
 
-        i = data.length
+        /* FIXME: Replace clear with a ceiling texture. */
+        i = data.length >> 1
         while (i--) {
           data[i] = 0
           i -= 3
         }
 
-        i = data.length
-        y = height >> 1
-        ty = 0.5
-        while (y--) {
-          ty -= invHeight
-          t = 64 / ty
-          x = width
-          tx = 0.5
-          while (x--) {
-            tx -= invWidth
-            u = cx + (tx * cos - sin) * t
-            v = cy + (cos + tx * sin) * t
+        x = width
+        tx = 0.5
+        while (x--) {
+          tx -= invWidth
+          a = tx * cos - sin
+          b = cos + tx * sin
+          i = data.length + ((x + 1 - width) << 2)
+          y = height >> 1
+          ty = 0.5
+          while (y--) {
+            ty -= invHeight
+            t = 64 / ty
+            u = cx + a * t
+            v = cy + b * t
 
             if (u < 0 || u >= 4096 || v < 0 || v >= 4096) {
-              j = i
-              i -= 4
-              k = y << 1
+              y <<= 1
 
-              while (k--) {
-                data[--j] = 255
-                data[--j] = 0
-                data[--j] = 0
-                data[--j] = 255
-                j -= skip
+              while (y--) {
+                data[--i] = 255
+                data[--i] = 0
+                data[--i] = 0
+                data[--i] = 255
+                i -= skip
               }
+
+              break
             }
 
-            else if (!data[--i]) {
-              data[i] = 255
-              data[--i] =
-              data[--i] =
-              data[--i] = (u ^ v) & 255
-            }
+            data[--i] = 255
+            data[--i] =
+            data[--i] =
+            data[--i] = (u ^ v) & 255
+            i -= skip
           }
-
-          /* FIXME: If an entire row is filled already, break the loop. */
         }
       }
 
